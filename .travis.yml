@@ -1,0 +1,19 @@
+language: python
+matrix:
+  include:
+    - python: "2.6"
+    - python: "2.7"
+    - python: "3.4"
+    - python: "3.5"
+    - python: "3.6"
+    # https://github.com/travis-ci/travis-ci/issues/9815
+    - python: "3.7"
+      dist: xenial
+      sudo: true
+install:
+  - pip install -r requirements.txt pytest-cov
+script:
+  - pytest --cov
+after_success:
+  - pip install codecov
+  - codecov
