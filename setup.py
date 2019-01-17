@@ -34,7 +34,7 @@ class PypiPublish(build_py):
 
 setuptools.setup(
     name="keepasshttp",
-    version="1.0.0",
+    version="1.0.1",
     packages=["keepasshttp"],
     url="https://github.com/cyrbil/python_keepass_http",
     license="License :: OSI Approved :: MIT License",

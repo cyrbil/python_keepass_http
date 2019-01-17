@@ -71,6 +71,11 @@ class TestKeePassHTTP(TestCase):
         )
         self.validate_entry(entry)
 
+
+        entry.url = entry.login
+        entry.login = entry.password
+        entry.password = entry.url
+
     def test_create(self):
         entry = self.kph.create("test", "test", "test")
         self.validate_entry(entry)

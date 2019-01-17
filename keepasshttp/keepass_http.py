@@ -27,12 +27,49 @@ class KeePassHTTPSingleton(type):
 
 
 class KeePassHTTPCredential(object):
-    def __init__(self, entry):
+    def __init__(self, kph, entry):
+        self.kph = kph
         self.name = entry.get("Name")
         self.uuid = entry.get("Uuid")
-        self.login = entry.get("Login")
-        self.password = entry.get("Password")
+        self._login = entry.get("Login")
+        self._password = entry.get("Password")
         self.string_fields = entry.get("StringFields") or []
+        # never received, put can be updated
+        self._url = None
+
+    @property
+    def login(self):
+        return self._login
+
+    @property
+    def password(self):
+        return self._password
+
+    @property
+    def url(self):
+        return self._url
+
+    @login.setter
+    def login(self, value):
+        self._login = value
+        self.update()
+
+    @password.setter
+    def password(self, value):
+        self._password = value
+        self.update()
+
+    @url.setter
+    def url(self, value):
+        self._url = value
+        self.update()
+
+    def update(self):
+        self.kph.update(
+            uid=self.uuid,
+            login=self._login,
+            password=self._password,
+            url=self._url)
 
 
 class KeePassHTTPException(Exception):
@@ -74,7 +111,7 @@ class KeePassHTTP(six.with_metaclass(KeePassHTTPSingleton, object)):
         data = self._request("get-logins", Url=key, SortSelection=sort_keys)
         entries = []
         for entry in data.get("Entries", ()):
-            entries.append(KeePassHTTPCredential(entry))
+            entries.append(KeePassHTTPCredential(self, entry))
         return entries
 
     def get(self, key):
@@ -94,7 +131,7 @@ class KeePassHTTP(six.with_metaclass(KeePassHTTPSingleton, object)):
         data = self._request("get-all-logins")
         entries = []
         for entry in data.get("Entries", ()):
-            entries.append(KeePassHTTPCredential(entry))
+            entries.append(KeePassHTTPCredential(self, entry))
         return entries
 
     def update(self, login, password, url, uid=None):
@@ -131,12 +168,12 @@ class KeePassHTTP(six.with_metaclass(KeePassHTTPSingleton, object)):
         data = self._request("associate", Key=base64.b64encode(self.key))
         uid = data.get("Id")
         if not uid:
-            raise KeePassHTTPException(
+            raise KeePassHTTPException(  # pragma: no cover
                 "Fail to associate with KeePassHTTP, no app id returned"
             )
         db_hash = data.get("Hash")
         if not db_hash:
-            raise KeePassHTTPException(
+            raise KeePassHTTPException(  # pragma: no cover
                 "Fail to associate with KeePassHTTP, no db_hash returned"
             )
         return uid, db_hash
@@ -159,11 +196,11 @@ class KeePassHTTP(six.with_metaclass(KeePassHTTPSingleton, object)):
 
         response = requests.post(url=self.url, json=request_data)
         if response.status_code is not 200:
-            raise KeePassHTTPException("KeePassHTTP returned an error")
+            raise KeePassHTTPException("KeePassHTTP returned an error")  # pragma: no cover
 
         response_data = response.json()
         if not response_data.get("Success", False):
-            raise KeePassHTTPException("KeePassHTTP returned an error")
+            raise KeePassHTTPException("KeePassHTTP returned an error")  # pragma: no cover
 
         nonce = response_data.get("Nonce", "")
         iv = base64.b64decode(nonce)
@@ -173,11 +210,11 @@ class KeePassHTTP(six.with_metaclass(KeePassHTTPSingleton, object)):
         verifier = aes.decrypt(signature).decode("utf-8")
 
         if nonce != verifier:
-            raise KeePassHTTPException("KeePassHTTP invalid signature")
+            raise KeePassHTTPException("KeePassHTTP invalid signature")  # pragma: no cover
         if self.uid and self.uid != response_data.get("Id"):
-            raise KeePassHTTPException("KeePassHTTP application id mismatch")
+            raise KeePassHTTPException("KeePassHTTP application id mismatch")  # pragma: no cover
         if self.db_hash and self.db_hash != response_data.get("Hash"):
-            raise KeePassHTTPException("KeePassHTTP database id mismatch")
+            raise KeePassHTTPException("KeePassHTTP database id mismatch")  # pragma: no cover
 
         response_data = self._decrypt(aes, response_data)
         return response_data

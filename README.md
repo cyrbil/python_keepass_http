@@ -34,6 +34,8 @@ Python client for KeePassHTTP to interact with KeePass's credentials.
     keepasshttp.create("login", "password", "url")
     
     # update a keepasshttp entry
+    credential.password = "new password"
+    # or
     keepasshttp.update("login", "password", "url", "uuid")
 
 
