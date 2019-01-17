@@ -28,7 +28,10 @@ class TestKeePassHTTP(TestCase):
 
     def validate_entry(self, entry):
         self.assertNotEqual(entry, None, "Entry should exist")
-        self.assertTrue(isinstance(entry, KeePassHTTPCredential), "Entry should be a credential instance")
+        self.assertTrue(
+            isinstance(entry, KeePassHTTPCredential),
+            "Entry should be a credential instance",
+        )
         self.assertEqual(entry.password, "test", "Entry has invalid data")
 
     def test__register(self):
@@ -53,7 +56,9 @@ class TestKeePassHTTP(TestCase):
     def test_search(self):
         for search in ("search_url", "search_name"):
             entries = self.kph.search(search)
-            self.assertEqual(len(entries), 2, "Unexpected number of result during search")
+            self.assertEqual(
+                len(entries), 2, "Unexpected number of result during search"
+            )
             for entry in entries:
                 self.validate_entry(entry)
 
@@ -61,7 +66,9 @@ class TestKeePassHTTP(TestCase):
         self.kph.list()
 
     def test_update(self):
-        entry = self.kph.update("test", "test", "test", "1C23268FFA3AA847972641922BA3F611")
+        entry = self.kph.update(
+            "test", "test", "test", "1C23268FFA3AA847972641922BA3F611"
+        )
         self.validate_entry(entry)
 
     def test_create(self):

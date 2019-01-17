@@ -5,6 +5,7 @@ import six
 
 # noinspection PyPackageRequirements
 import Crypto.Random
+
 # noinspection PyPackageRequirements
 import Crypto.Cipher.AES
 
@@ -41,12 +42,12 @@ class AES_256_CBC(object):
         val = six.byte2int(text[-1:])
         if val > 16:
             val = 0
-        return text[:len(text) - val]
+        return text[: len(text) - val]
 
     def cipher(self):
         return Crypto.Cipher.AES.new(
-            key=self.key, iv=self.iv,
-            mode=Crypto.Cipher.AES.MODE_CBC)
+            key=self.key, iv=self.iv, mode=Crypto.Cipher.AES.MODE_CBC
+        )
 
     def encrypt(self, text):
         cipher = self.cipher()

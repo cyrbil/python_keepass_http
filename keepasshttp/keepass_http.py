@@ -20,7 +20,9 @@ class KeePassHTTPSingleton(type):
         key = (cls, storage)
         instance = cls._instances.get(key)
         if not instance:
-            instance = cls._instances[key] = super(KeePassHTTPSingleton, cls).__call__(storage, *args, **kwargs)
+            instance = cls._instances[key] = super(KeePassHTTPSingleton, cls).__call__(
+                storage, *args, **kwargs
+            )
         return instance
 
 
@@ -96,7 +98,9 @@ class KeePassHTTP(six.with_metaclass(KeePassHTTPSingleton, object)):
         return entries
 
     def update(self, login, password, url, uid=None):
-        data = self._request("set-login", Login=login, Password=password, Url=url, Uuid=uid)
+        data = self._request(
+            "set-login", Login=login, Password=password, Url=url, Uuid=uid
+        )
         return self.get(data.get("Id"))
 
     def create(self, login, password, url):
@@ -107,11 +111,13 @@ class KeePassHTTP(six.with_metaclass(KeePassHTTPSingleton, object)):
             self.key = AES_256_CBC.rand_bytes(32)
             self.uid, self.db_hash = self._register()
             with open(self.storage, "wb+") as fd:
+                # fmt: off
                 data = b'\n'.join((
                     base64.b64encode(self.uid.encode("utf-8")),
                     base64.b64encode(self.key),
                     base64.b64encode(self.db_hash.encode("utf-8"))
                 ))
+                # fmt: on
                 fd.write(data)
         else:
             with open(self.storage, "rb") as fd:
@@ -125,10 +131,14 @@ class KeePassHTTP(six.with_metaclass(KeePassHTTPSingleton, object)):
         data = self._request("associate", Key=base64.b64encode(self.key))
         uid = data.get("Id")
         if not uid:
-            raise KeePassHTTPException("Fail to associate with KeePassHTTP, no app id returned")
+            raise KeePassHTTPException(
+                "Fail to associate with KeePassHTTP, no app id returned"
+            )
         db_hash = data.get("Hash")
         if not db_hash:
-            raise KeePassHTTPException("Fail to associate with KeePassHTTP, no db_hash returned")
+            raise KeePassHTTPException(
+                "Fail to associate with KeePassHTTP, no db_hash returned"
+            )
         return uid, db_hash
 
     def _authenticate(self):
@@ -141,19 +151,13 @@ class KeePassHTTP(six.with_metaclass(KeePassHTTPSingleton, object)):
         aes = AES_256_CBC(self.key)
         iv = base64.b64encode(aes.iv)
 
-        request_data.update({
-            "RequestType": request,
-            "Id": self.uid,
-            "Nonce": iv,
-            "Verifier": iv
-        })
+        request_data.update(
+            {"RequestType": request, "Id": self.uid, "Nonce": iv, "Verifier": iv}
+        )
 
         request_data = self._encrypt(aes, request_data)
 
-        response = requests.post(
-            url=self.url,
-            json=request_data
-        )
+        response = requests.post(url=self.url, json=request_data)
         if response.status_code is not 200:
             raise KeePassHTTPException("KeePassHTTP returned an error")
 

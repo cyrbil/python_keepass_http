@@ -6,6 +6,8 @@ import requests
 
 from keepasshttp import AES_256_CBC
 
+
+# fmt: off
 data = {
     "associate":      b'{"RequestType":"associate","Success":true,"Id":"unittest_tmp","Count":0,"Version":"1.8.4.2",'
                       b'"Hash":"46e1d15ab37d8a2700b0c1755244433514b7a13f","Nonce":"SDfFtzkTrrrajXYfi0/wYA==",'
@@ -35,6 +37,7 @@ data = {
                       b'"Hash":"46e1d15ab37d8a2700b0c1755244433514b7a13f","Nonce":"9MDKT27u19P2iDvYHArldw==",'
                       b'"Verifier":"qb4TcljmB+bgJhbMe7KZ256enks+ewMrlXY9IB63+KI="}',
 }
+# fmt: on
 
 
 class RequestsMock(object):
@@ -70,9 +73,9 @@ class RandomBytesMock(object):
 
         def rand_bytes(n, *args, **kwargs):
             if n is 16:
-                return base64.b64decode(b'DEBUG+16+CtERUJVRysxNg==')
+                return base64.b64decode(b"DEBUG+16+CtERUJVRysxNg==")
             elif n is 32:
-                return base64.b64decode(b'DEBUG+256+bits++++srKysrREVCVUcrMjU2K2JpdHM=')
+                return base64.b64decode(b"DEBUG+256+bits++++srKysrREVCVUcrMjU2K2JpdHM=")
             else:
                 return cls.mocked(n=n, *args, **kwargs)
 

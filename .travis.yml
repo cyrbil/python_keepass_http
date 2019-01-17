@@ -10,6 +10,8 @@ matrix:
     - python: "3.7"
       dist: xenial
       sudo: true
+
+
 install:
   - pip install -r requirements.txt pytest-cov
 script:

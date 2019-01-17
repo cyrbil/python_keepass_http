@@ -1,7 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from .keepass_http import KeePassHTTP, KeePassHTTPCredential, KeePassHTTPException, AES_256_CBC
+from .keepass_http import (
+    AES_256_CBC,
+    KeePassHTTP,
+    KeePassHTTPCredential,
+    KeePassHTTPException,
+)
 
 
 keepasshttp = KeePassHTTP()

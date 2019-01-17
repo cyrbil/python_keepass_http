@@ -25,16 +25,12 @@ class PypiPublish(build_py):
             if isinstance(cmd, str):
                 cmd = cmd.split()
             cmd.insert(0, sys.executable)
-            # subprocess.check_call(cmd, stdin=sys.stdin)
-            os.system(' '.join(cmd))
+            subprocess.check_call(cmd)
 
         python("-m pip install setuptools wheel twine")
         python("setup.py sdist bdist_wheel --universal")
-        python("-m twine upload --verbose --repository-url https://test.pypi.org/legacy/ dist/*")
         python("-m twine upload --verbose dist/*")
 
-import sys
-print(sys.executable)
 
 setuptools.setup(
     name="keepasshttp",
@@ -66,9 +62,7 @@ setuptools.setup(
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: Implementation :: CPython",
         "Programming Language :: Python :: Implementation :: PyPy",
-        "Topic :: Security"
+        "Topic :: Security",
     ],
-    cmdclass={
-        'publish': PypiPublish
-    }
+    cmdclass={"publish": PypiPublish},
 )
