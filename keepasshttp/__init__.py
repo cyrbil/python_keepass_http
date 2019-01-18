@@ -9,7 +9,7 @@ from .keepass_http import (
 )
 
 
-__VERSION__ = "1.1.0"
+__VERSION__ = "1.2.0"
 
 
 keepasshttp = KeePassHTTP()
