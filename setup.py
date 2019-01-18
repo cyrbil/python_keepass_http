@@ -6,6 +6,7 @@ import os
 import setuptools
 from setuptools.command.build_py import build_py
 
+import keepasshttp
 
 here = os.path.abspath(os.path.dirname(__file__))
 
@@ -34,7 +35,7 @@ class PypiPublish(build_py):
 
 setuptools.setup(
     name="keepasshttp",
-    version="1.0.1",
+    version=keepasshttp.__VERSION__,
     packages=["keepasshttp"],
     url="https://github.com/cyrbil/python_keepass_http",
     license="License :: OSI Approved :: MIT License",

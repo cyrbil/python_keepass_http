@@ -9,6 +9,9 @@ from .keepass_http import (
 )
 
 
+__VERSION__ = "1.0.1"
+
+
 keepasshttp = KeePassHTTP()
 get = keepasshttp.get
 list = keepasshttp.list
