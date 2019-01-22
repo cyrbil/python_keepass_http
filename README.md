@@ -49,12 +49,12 @@ Python client for [KeePassHTTP][keepasshttp.url] to interact with [KeePass][keep
 By default, this module will write AES association key to `~/.python_keepass_http`
 and use `http://localhost:19455/` to connect to the [KeePassHTTP][keepasshttp.url] server.
 
-To change theses parameters, instanciate `keepasshttp.KeePassHTTP` class with different values.
+To change theses parameters, instantiate `keepasshttp.KeePassHTTP` class with different values.
 
     from keepasshttp import KeePassHTTP
     kph = KeePassHTTP(
-        storage='./keepasshttp_key', 
-        url="https://example.com:1337/)
+        storage="./keepasshttp_key", 
+        url="https://example.com:1337/")
     kph.get("...")
     ...
     
