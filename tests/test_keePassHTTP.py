@@ -23,8 +23,8 @@ class TestKeePassHTTP(TestCase):
         self.kph = KeePassHTTP(storage)
 
     def tearDown(self):
-        mock.RequestsMock.mock()
-        mock.RandomBytesMock.mock()
+        mock.RequestsMock.unmock()
+        mock.RandomBytesMock.unmock()
 
     def validate_entry(self, entry):
         self.assertNotEqual(entry, None, "Entry should exist")
