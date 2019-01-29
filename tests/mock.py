@@ -24,6 +24,9 @@ data = {
                       b'"Password":"tK2twveV9rw4SSZdvmDd2g==",'
                       b'"Uuid":"/Vih5wfxi1v+ltJ7c3R35XhVCJCVApgINbhc7eK2Y/u8B78y2TB73avHbspjFopw",'
                       b'"Name":"tK2twveV9rw4SSZdvmDd2g==","StringFields":[]}]}',
+    "get-logins_err": b'{"RequestType":"get-logins","Success":true,"Id":"unittest","Count":1,"Version":"1.8.4.2",'
+                      b'"Hash":"46e1d15ab37d8a2700b0c1755244433514b7a13f","Nonce":"RhejnJYTyrHLlqv2kWTGtQ==",'
+                      b'"Verifier":"JibwoBzn/3JME1Srn/N6qsV/HknsrIiZDplkkvfbUcE=","Entries":[]}',
     "get-all-logins": b'{"RequestType":"get-all-logins","Success":true,"Id":"unittest","Count":1,"Version":"1.8.4.2",'
                       b'"Hash":"46e1d15ab37d8a2700b0c1755244433514b7a13f","Nonce":"RhejnJYTyrHLlqv2kWTGtQ==",'
                       b'"Verifier":"JibwoBzn/3JME1Srn/N6qsV/HknsrIiZDplkkvfbUcE=","Entries":[{'
@@ -49,6 +52,8 @@ class RequestsMock(object):
 
         def post(json, *_, **__):
             rt = json.get("RequestType")
+            if rt == "get-logins" and json.get("Id") == "unittest" and json.get("Url") == "G87cEMYR9pzei+oeZs9T5A==":
+                rt = "get-logins_err"
             content = data[rt]
             response = requests.Response()
             response._content = content

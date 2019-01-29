@@ -44,6 +44,41 @@ Python client for [KeePassHTTP][keepasshttp.url] to interact with [KeePass][keep
     keepasshttp.update("login", "password", "url", "uuid")
 
 
+## Command line
+
+KeePassHTTP can also be called from command line:
+
+
+    $ python -m keepathhttp --help
+    usage: keepasshttp [-h] [-c CONFIG_PATH] [-u URL]
+                   [-f {python,text,table,json,csv}]
+                   credential [credential ...]
+
+    Fetch credentials from keepass
+    
+    positional arguments:
+      credential            Url or name to match credentials from keepass database
+    
+    optional arguments:
+      -h, --help            show this help message and exit
+      -c CONFIG_PATH, --config CONFIG_PATH
+                            alternative path for keepasshttp's AES exchange key
+                            (default: ~/.python_keepass_http)
+      -u URL, --url URL     alternative url for keepasshttp server (default:
+                            'http://localhost:19455/')
+      -f {python,text,table,json,csv}, --format {python,text,table,json,csv}
+                            output format for credentials
+    
+    $ python -m keepathhttp my_credential_name_or_url
+    my_credential_name_or_url
+      - login: login
+      - password: password
+      - name: test
+      - url: my_credential_name_or_url
+      - id: ABCDEF1234567890ABCDEF1234567890
+      - fields: []
+    
+    
 ## Configuration
 
 By default, this module will write AES association key to `~/.python_keepass_http`
