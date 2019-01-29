@@ -7,7 +7,7 @@ import six
 import Crypto.Random
 
 # noinspection PyPackageRequirements
-import Crypto.Cipher.AES
+from Crypto.Cipher import AES
 
 from requests.compat import str
 
@@ -45,8 +45,8 @@ class AES_256_CBC(object):
         return text[: len(text) - val]
 
     def cipher(self):
-        return Crypto.Cipher.AES.new(
-            key=self.key, iv=self.iv, mode=Crypto.Cipher.AES.MODE_CBC
+        return AES.new(
+            key=self.key, iv=self.iv, mode=AES.MODE_CBC
         )
 
     def encrypt(self, text):
