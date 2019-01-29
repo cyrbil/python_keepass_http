@@ -18,7 +18,7 @@ Python client for [KeePassHTTP][keepasshttp.url] to interact with [KeePass][keep
 ## Install
 
     $ pip install keepasshttp
-    
+
 
 ## Usage
 
@@ -49,7 +49,7 @@ Python client for [KeePassHTTP][keepasshttp.url] to interact with [KeePass][keep
 KeePassHTTP can also be called from command line:
 
 
-    $ python -m keepathhttp --help
+    $ python -m keepasshttp --help
     usage: keepasshttp [-h] [-c CONFIG_PATH] [-u URL]
                    [-f {python,text,table,json,csv}]
                    credential [credential ...]
@@ -77,7 +77,7 @@ KeePassHTTP can also be called from command line:
       - url: my_credential_name_or_url
       - id: ABCDEF1234567890ABCDEF1234567890
       - fields: []
-    
+
     
 ## Configuration
 
@@ -92,14 +92,14 @@ To change theses parameters, instantiate `keepasshttp.KeePassHTTP` class with di
         url="https://example.com:1337/")
     kph.get("...")
     ...
-    
-    
+
+
 ## Testing
 
 You can simply run the tests using:
 
     python -m unittest discover
-    
+
 `KeePassHTTP` calls are mocked, to run the tests against a real server, you need to:
  
    - open `tests/test_database.kdbx` in `KeePass` password is `test`
@@ -113,7 +113,7 @@ To run tests with coverage:
 
     pip install pytest-cov
     pytest --cov
-    
+
 
 [comment]: # (Urls references)
 [pypi_project.url]: https://pypi.org/project/keepasshttp/

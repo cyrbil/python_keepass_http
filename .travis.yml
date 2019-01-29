@@ -15,12 +15,14 @@ matrix:
       sudo: true
 
 cache: pip
+before_install:
+  - sudo apt-get install -y libssl-dev libffi-dev
 install:
   - pip install -r requirements.txt pytest-cov
 script:
   - pytest --cov
 after_success:
-  - pip install codecov
+  - pip install codecov pyopenssl
   - codecov
 
 deploy:
@@ -28,7 +30,7 @@ deploy:
   skip_existing: true
   distributions: sdist bdist_wheel --universal
   on:
-    python: "3.6"
+    python: "3.7"
     tags: true
     branch: master
     repo: cyrbil/python_keepass_http

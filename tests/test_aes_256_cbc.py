@@ -21,10 +21,10 @@ class TestKeePassHTTP(TestCase):
 
         # ensure long text is also rightly treated (iv changes)
         cipher_text = aes.encrypt("Hello World !" * 100000)
-        digest_cipher_text = hashlib.blake2b(cipher_text, digest_size=16).hexdigest()
+        digest_cipher_text = hashlib.sha1(cipher_text).hexdigest()
         self.assertEqual(
             digest_cipher_text,
-            "88a95bbc0589bf4f73b696a6256400aa",
+            "ba0033d46d20113c2aed3f9eb059f9c885414cdc",
             "AES encryption produced unexpected result")
 
     def test_decrypt(self):
@@ -37,8 +37,8 @@ class TestKeePassHTTP(TestCase):
 
         # ensure long text is also rightly treated (iv changes)
         cipher_text = aes.decrypt(b"Hello World !!!!" * 100000)
-        digest_cipher_text = hashlib.blake2b(cipher_text, digest_size=16).hexdigest()
+        digest_cipher_text = hashlib.sha1(cipher_text).hexdigest()
         self.assertEqual(
             digest_cipher_text,
-            "bf89ed6f20e70e313204507b41124db4",
+            "6335686444663cbeffbd9543db7b1ebc17bbe4ac",
             "AES decryption produced unexpected result")

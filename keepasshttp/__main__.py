@@ -1,23 +1,36 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+from __future__ import unicode_literals
+
 import argparse
 
+try:
+    from collections import OrderedDict
+except ImportError:
+    # noinspection PyUnresolvedReferences,PyPackageRequirements
+    from ordereddict import OrderedDict
+
 from keepasshttp import KeePassHTTP
+from requests.compat import str
 
 
 def python_fmt(entries):
-    return {
-        k: {
-            "login": v.login,
-            "password": v.password,
-            "name": v.name,
-            "url": v.url,
-            "id": v.uuid,
-            "fields": v.string_fields,
-        } if v else None
-        for k, v in entries.items()
-    }
+    entries_dict = OrderedDict()
+    for k, v in entries.items():
+        if v:
+            entry = OrderedDict((
+                ("login", v.login),
+                ("password", v.password),
+                ("name", v.name),
+                ("url", v.url),
+                ("id", v.uuid),
+                ("fields", v.string_fields),
+            ))
+        else:
+            entry = None
+        entries_dict[k] = entry
+    return entries_dict
 
 
 def text_fmt(entries):
@@ -36,19 +49,19 @@ def json_fmt(entries):
 
 
 def csv_fmt(entries):
-    import io
-    import csv
+    def escape(s):
+        return "\"{0}\"".format(str(s).replace("\"", "\\\""))
 
-    output = io.StringIO()
-    writer = csv.writer(output)
-
-    writer.writerow(["credential", "login", "password", "name", "url", "id", "fields"])
+    output = []
+    fields_header = ["credential", "login", "password", "name", "url", "id", "fields"]
+    output.append(','.join(fields_header))
     for k, credential in python_fmt(entries).items():
         if credential:
-            writer.writerow([k, *credential.values()])
+            fields = [k] + list(credential.get(value, "") for value in fields_header[1:])
         else:
-            writer.writerow([k, *[""]*6])
-    return output.getvalue()
+            fields = [k] + ([""]*6)
+        output.append(','.join(map(escape, fields)))
+    return '\n'.join(output)
 
 
 def table_fmt(entries):
@@ -57,9 +70,10 @@ def table_fmt(entries):
 
     for k, credential in python_fmt(entries).items():
         if credential:
-            line_fields = [k, *map(str, credential.values())]
+            credential_values = list(credential.get(value, "") for value in lines_fields[0][1:])
+            line_fields = [k] + list(map(str, credential_values))
         else:
-            line_fields = [k, *[""]*6]
+            line_fields = [k] + ([""]*6)
         max_fields_len = list(map(max, zip(max_fields_len, map(len, line_fields))))
         lines_fields.append(line_fields)
 
@@ -73,7 +87,6 @@ def table_fmt(entries):
 
 
 formatters = {
-    "python": python_fmt,
     "text": text_fmt,
     "table": table_fmt,
     "json": json_fmt,
@@ -97,11 +110,10 @@ def cmd_line(args=None, kph=None):
     if not kph:  # pragma: no cover
         kph = KeePassHTTP(storage=args.config_path, url=args.url)
 
-    credentials = {
-        credential: kph.get(credential)
-        for credential in args.credentials
-    }
-
+    credentials = OrderedDict()
+    for credential in args.credentials:
+        credentials[credential] = kph.get(credential)
+        
     return str(formatters[args.format](credentials))
 
 
