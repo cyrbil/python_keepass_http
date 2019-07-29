@@ -195,6 +195,8 @@ class KeePassHTTP(six.with_metaclass(KeePassHTTPSingleton, object)):
         request_data = self._encrypt(aes, request_data)
 
         response = requests.post(url=self.url, json=request_data)
+        
+
         if response.status_code is not 200:
             raise KeePassHTTPException("KeePassHTTP returned an error")  # pragma: no cover
 
@@ -202,6 +204,10 @@ class KeePassHTTP(six.with_metaclass(KeePassHTTPSingleton, object)):
         if not response_data.get("Success", False):
             raise KeePassHTTPException("KeePassHTTP returned an error")  # pragma: no cover
 
+        response_data = self._decrypt_response(response_data)
+        return response_data
+
+    def _decrypt_response(self, response_data):
         nonce = response_data.get("Nonce", "")
         iv = base64.b64decode(nonce)
 
@@ -211,55 +217,57 @@ class KeePassHTTP(six.with_metaclass(KeePassHTTPSingleton, object)):
 
         if nonce != verifier:
             raise KeePassHTTPException("KeePassHTTP invalid signature")  # pragma: no cover
-        if self.uid and self.uid != response_data.get("Id"):
-            raise KeePassHTTPException("KeePassHTTP application id mismatch")  # pragma: no cover
-        if self.db_hash and self.db_hash != response_data.get("Hash"):
-            raise KeePassHTTPException("KeePassHTTP database id mismatch")  # pragma: no cover
+
+        field_checks = {
+            "Id": self.uid,
+            "Hash": self.db_hash,
+        }
+        for key, value in field_checks.items():
+            if value and value != response_data.get(key):
+                raise KeePassHTTPException(
+                    "KeePassHTTP sent a {0:s} that does not match local one".format(key))  # pragma: no cover
 
         response_data = self._decrypt(aes, response_data)
         return response_data
 
     def _encrypt(self, aes, data):
         if isinstance(data, bytes):
-            data = data.decode("utf-8")
+            return data.decode("utf-8")
 
         elif isinstance(data, dict):
-            for key, value in list(data.items()):
-                if value is None:
-                    del data[key]
-                    continue
-                if key in self.encrypted_fields and isinstance(value, (bytes, str)):
-                    cipher_value = aes.encrypt(value)
-                    value = base64.b64encode(cipher_value)
-                value = self._encrypt(aes, value)
-                data[key] = value
+            return self._encrypt_dict(aes, data)
+        
+        elif not isinstance(data, str) and hasattr(data, "__iter__"):
+            return list(map(lambda item: self._encrypt(aes, item), data))  # pragma: no cover
+        
+        return str(data).lower()
 
-        elif not isinstance(data, str):
-            if hasattr(data, "__iter__"):  # pragma: no cover
-                encrypted_data = []
-                for item in data:
-                    encrypted_data.append(self._encrypt(aes, item))
-                data = encrypted_data
-            else:
-                data = str(data).lower()
-
+    def _encrypt_dict(self, aes, data):
+        for key, value in list(data.items()):
+            if value is None:
+                del data[key]
+                continue
+            if key in self.encrypted_fields and isinstance(value, (bytes, str)):
+                cipher_value = aes.encrypt(value)
+                value = base64.b64encode(cipher_value)
+            value = self._encrypt(aes, value)
+            data[key] = value
         return data
-
+    
     def _decrypt(self, aes, data):
         if isinstance(data, str):
-            # noinspection PyBroadException
-            try:
-                data = aes.decrypt(base64.b64decode(data)).decode("utf-8")
-            except Exception:
-                pass
-
+            return self._decrypt_str(aes, data)
         elif isinstance(data, dict):
             for key, value in data.items():
                 data[key] = self._decrypt(aes, value)
 
         elif hasattr(data, "__iter__"):
-            decrypted_data = []
-            for item in data:
-                decrypted_data.append(self._decrypt(aes, item))
-            data = decrypted_data
+            return list(map(lambda item: self._decrypt(aes, item), data))
         return data
+
+    def _decrypt_str(self, aes, data):
+        try:
+            return aes.decrypt(base64.b64decode(data)).decode("utf-8")
+        except ValueError:
+            return data
+

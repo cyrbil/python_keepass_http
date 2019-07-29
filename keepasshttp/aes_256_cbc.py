@@ -50,13 +50,11 @@ class AES_256_CBC(object):
         )
 
     def encrypt(self, text):
-        cipher = self.cipher()
         padded_text = self.pad(text)
-        cipher_text = cipher.encrypt(padded_text)
+        cipher_text = self.cipher().encrypt(padded_text)
         return cipher_text
 
     def decrypt(self, ciphertext):
-        cipher = self.cipher()
-        padded_text = cipher.decrypt(ciphertext)
+        padded_text = self.cipher().decrypt(ciphertext)
         text = self.unpad(padded_text)
         return text

@@ -7,7 +7,7 @@ import argparse
 
 try:
     from collections import OrderedDict
-except ImportError:
+except ImportError: # pragma: no cover 
     # noinspection PyUnresolvedReferences,PyPackageRequirements
     from ordereddict import OrderedDict
 
@@ -38,8 +38,10 @@ def text_fmt(entries):
     for k, credential in python_fmt(entries).items():
         lines.append(k)
         if credential:
-            for field, value in credential.items():
-                lines.append("  - {0}: {1}".format(field, value))
+            list(map(lines.append,
+                ("  - {0}: {1}".format(field, value)
+                for field, value in credential.items())
+            ))
     return '\n'.join(lines)
 
 
@@ -76,7 +78,11 @@ def table_fmt(entries):
             line_fields = [k] + ([""]*6)
         max_fields_len = list(map(max, zip(max_fields_len, map(len, line_fields))))
         lines_fields.append(line_fields)
+    
+    return table_fmt_justify(lines_fields, max_fields_len)
+    
 
+def table_fmt_justify(lines_fields, max_fields_len):
     lines = []
     for line_fields in lines_fields:
         line = []
@@ -84,6 +90,7 @@ def table_fmt(entries):
             line.append(line_fields[i].ljust(max_field_len))
         lines.append('\t'.join(line))
     return '\n'.join(lines)
+
 
 
 formatters = {

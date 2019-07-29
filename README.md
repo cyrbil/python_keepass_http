@@ -5,6 +5,7 @@
 [![pypi_format.svg][pypi_format.svg]][pypi_project.url]
 [![python_versions.svg][python_versions.svg]][pypi_project.url]  
 [![license.svg][license.svg]][license.url]
+[![Maintainability][maintainability.svg]][maintainability.url]
 [![travis_build.svg][travis_build.svg]][travis.url]
 [![codecov.svg][codecov.svg]][codecov.url]
 [![requirements_status.svg][requirements_status.svg]][requires.url]
@@ -123,6 +124,7 @@ To run tests with coverage:
 [requires.url]: https://requires.io/github/cyrbil/python_keepass_http/requirements/?branch=master
 [keepasshttp.url]: https://github.com/pfn/keepasshttp
 [keepass.url]: https://keepass.info/
+[maintainability.url]: https://codeclimate.com/github/cyrbil/python_keepass_http/maintainability
 
 [comment]: # (Images references)
 [pypi_version.svg]: https://img.shields.io/pypi/v/keepasshttp.svg "PYPI KeePassHTTP"
@@ -135,3 +137,4 @@ To run tests with coverage:
 [requirements_status.svg]: https://img.shields.io/requires/github/cyrbil/python_keepass_http.svg "requires.io"
 [code_size.svg]: https://img.shields.io/github/languages/code-size/cyrbil/python_keepass_http.svg "All files"
 [pypi_downloads.svg]: https://img.shields.io/pypi/dm/keepasshttp.svg "PYPI KeePassHTTP"
+[maintainability.svg]: https://api.codeclimate.com/v1/badges/9aa1b086f9dde4d1e23d/maintainability
