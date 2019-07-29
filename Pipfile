@@ -6,12 +6,16 @@ verify_ssl = true
 [dev-packages]
 pytest-cov = "*"
 pytest = "*"
+bandit = "*"
+pre-commit = "*"
+safety = "*"
+bump2version = "*"
 
 [packages]
-pycryptodome = ">=3.8.2"
-requests = ">=2.22.0"
-six = ">=1.12.0"
-ordereddict = ">=1.1"
+pycryptodome = "*"
+requests = "*"
+six = "*"
+ordereddict = "*"
 
-[requires]
-python_version = "3.7"
+[pipenv]
+allow_prereleases = true

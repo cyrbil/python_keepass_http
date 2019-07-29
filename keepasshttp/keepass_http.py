@@ -4,9 +4,9 @@
 import os
 import base64
 
-import six
 import requests
 
+from six import with_metaclass
 # noinspection PyCompatibility
 from requests.compat import str, bytes
 
@@ -69,20 +69,21 @@ class KeePassHTTPCredential(object):
             uid=self.uuid,
             login=self._login,
             password=self._password,
-            url=self._url)
+            url=self._url,
+        )
 
 
 class KeePassHTTPException(Exception):
     pass
 
 
-class KeePassHTTP(six.with_metaclass(KeePassHTTPSingleton, object)):
+class KeePassHTTP(with_metaclass(KeePassHTTPSingleton, object)):
     instances = {}
     encrypted_fields = ("Verifier", "Url", "SubmitUrl", "Login", "Password", "Uuid")
     default_storage = os.path.expanduser(os.path.join("~", ".python_keepass_http"))
 
     def __init__(self, storage=None, url="http://localhost:19455/"):
-        """KeePassHTTP easy wrapper
+        """`KeePassHTTP` easy wrapper.
 
         :param storage: file path to store private association key
                         (default to "~/.python_keepass_http")
@@ -98,6 +99,7 @@ class KeePassHTTP(six.with_metaclass(KeePassHTTPSingleton, object)):
 
     def search(self, key, sort_keys=False):
         """Search all matching entries for a given ``key``.
+
         For every entry, the Levenshtein Distance of his Entry-URL (or Title, if Entry-URL is not set)
         to the ``key`` is calculated. Only the entries with the minimal distance are returned
 
@@ -116,6 +118,7 @@ class KeePassHTTP(six.with_metaclass(KeePassHTTPSingleton, object)):
 
     def get(self, key):
         """Search all matching entries for a given ``key``.
+
         For every entry, the Levenshtein Distance of his Entry-URL (or Title, if Entry-URL is not set)
         to the ``key`` is calculated. Only the entry with the minimal distance are returned
 
@@ -136,7 +139,7 @@ class KeePassHTTP(six.with_metaclass(KeePassHTTPSingleton, object)):
 
     def update(self, login, password, url, uid=None):
         data = self._request(
-            "set-login", Login=login, Password=password, Url=url, Uuid=uid
+            "set-login", Login=login, Password=password, Url=url, Uuid=uid,
         )
         return self.get(data.get("Id"))
 
@@ -152,7 +155,7 @@ class KeePassHTTP(six.with_metaclass(KeePassHTTPSingleton, object)):
                 data = b'\n'.join((
                     base64.b64encode(self.uid.encode("utf-8")),
                     base64.b64encode(self.key),
-                    base64.b64encode(self.db_hash.encode("utf-8"))
+                    base64.b64encode(self.db_hash.encode("utf-8")),
                 ))
                 # fmt: on
                 fd.write(data)
@@ -169,12 +172,12 @@ class KeePassHTTP(six.with_metaclass(KeePassHTTPSingleton, object)):
         uid = data.get("Id")
         if not uid:
             raise KeePassHTTPException(  # pragma: no cover
-                "Fail to associate with KeePassHTTP, no app id returned"
+                "Fail to associate with KeePassHTTP, no app id returned",
             )
         db_hash = data.get("Hash")
         if not db_hash:
             raise KeePassHTTPException(  # pragma: no cover
-                "Fail to associate with KeePassHTTP, no db_hash returned"
+                "Fail to associate with KeePassHTTP, no db_hash returned",
             )
         return uid, db_hash
 
@@ -189,15 +192,14 @@ class KeePassHTTP(six.with_metaclass(KeePassHTTPSingleton, object)):
         iv = base64.b64encode(aes.iv)
 
         request_data.update(
-            {"RequestType": request, "Id": self.uid, "Nonce": iv, "Verifier": iv}
+            {"RequestType": request, "Id": self.uid, "Nonce": iv, "Verifier": iv},
         )
 
         request_data = self._encrypt(aes, request_data)
 
         response = requests.post(url=self.url, json=request_data)
-        
 
-        if response.status_code is not 200:
+        if response.status_code != 200:
             raise KeePassHTTPException("KeePassHTTP returned an error")  # pragma: no cover
 
         response_data = response.json()
@@ -213,19 +215,19 @@ class KeePassHTTP(six.with_metaclass(KeePassHTTPSingleton, object)):
 
         aes = AES_256_CBC(self.key, iv)
         signature = base64.b64decode(response_data.get("Verifier", ""))
-        verifier = aes.decrypt(signature).decode("utf-8")
+        verifier = aes.decrypt(signature).decode("ascii")
 
         if nonce != verifier:
             raise KeePassHTTPException("KeePassHTTP invalid signature")  # pragma: no cover
-
         field_checks = {
             "Id": self.uid,
             "Hash": self.db_hash,
         }
         for key, value in field_checks.items():
             if value and value != response_data.get(key):
-                raise KeePassHTTPException(
-                    "KeePassHTTP sent a {0:s} that does not match local one".format(key))  # pragma: no cover
+                raise KeePassHTTPException(  # pragma: no cover
+                        "KeePassHTTP sent a {0:s} that does not match local one".format(key),
+                )
 
         response_data = self._decrypt(aes, response_data)
         return response_data
@@ -236,10 +238,10 @@ class KeePassHTTP(six.with_metaclass(KeePassHTTPSingleton, object)):
 
         elif isinstance(data, dict):
             return self._encrypt_dict(aes, data)
-        
+
         elif not isinstance(data, str) and hasattr(data, "__iter__"):
             return list(map(lambda item: self._encrypt(aes, item), data))  # pragma: no cover
-        
+
         return str(data).lower()
 
     def _encrypt_dict(self, aes, data):
@@ -253,7 +255,7 @@ class KeePassHTTP(six.with_metaclass(KeePassHTTPSingleton, object)):
             value = self._encrypt(aes, value)
             data[key] = value
         return data
-    
+
     def _decrypt(self, aes, data):
         if isinstance(data, str):
             return self._decrypt_str(aes, data)
@@ -268,6 +270,5 @@ class KeePassHTTP(six.with_metaclass(KeePassHTTPSingleton, object)):
     def _decrypt_str(self, aes, data):
         try:
             return aes.decrypt(base64.b64decode(data)).decode("utf-8")
-        except ValueError:
+        except (TypeError, ValueError):
             return data
-

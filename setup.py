@@ -32,6 +32,7 @@ class PypiPublish(build_py):
         python("setup.py sdist bdist_wheel --universal")
         python("-m twine upload --verbose dist/*")
 
+
 setuptools.setup(
     name="keepasshttp",
     version=keepasshttp.__VERSION__,
@@ -43,7 +44,11 @@ setuptools.setup(
     description="Python client for KeePassHTTP to interact with KeePass's credentials",
     long_description=get_content("README.md"),
     long_description_content_type="text/markdown",
-    install_requires=[r.split(maxsplit=1)[0] for r in get_content("requirements.txt").split('\n')],
+    install_requires=[
+        requirement.split(maxsplit=1)[0] 
+        for requirement in get_content("requirements.txt").split('\n')
+        if requirement
+    ],
     setup_requires=["pytest-runner"],
     tests_require=["pytest-cov"],
     include_package_data=True,

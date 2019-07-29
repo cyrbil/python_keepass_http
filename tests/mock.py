@@ -43,7 +43,7 @@ data = {
 # fmt: on
 
 
-class RequestsMock(object):
+class RequestsMock:
     mocked = None
 
     @classmethod
@@ -69,7 +69,7 @@ class RequestsMock(object):
             requests.post = cls.mocked
 
 
-class RandomBytesMock(object):
+class RandomBytesMock:
     mocked = None
 
     @classmethod
@@ -77,9 +77,9 @@ class RandomBytesMock(object):
         cls.mocked = AES_256_CBC.rand_bytes
 
         def rand_bytes(n, *args, **kwargs):
-            if n is 16:
+            if n == 16:
                 return base64.b64decode(b"DEBUG+16+CtERUJVRysxNg==")
-            elif n is 32:
+            elif n == 32:
                 return base64.b64decode(b"DEBUG+256+bits++++srKysrREVCVUcrMjU2K2JpdHM=")
             else:
                 return cls.mocked(n=n, *args, **kwargs)

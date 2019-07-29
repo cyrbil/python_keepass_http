@@ -23,8 +23,8 @@ test
 
 output_table = """
 credential	login	password	name	url 	id                              	fields
-404       	     	        	    	    	                                	      
-test      	test 	test    	test	None	861BD08DED5C154C99AEBAFEBA48F739	[]     
+404
+test      	test 	test    	test	None	861BD08DED5C154C99AEBAFEBA48F739	[]
 """
 
 

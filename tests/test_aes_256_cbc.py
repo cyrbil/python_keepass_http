@@ -17,7 +17,8 @@ class TestKeePassHTTP(TestCase):
         self.assertEqual(
             cipher_text,
             b"GD@\"\xdb\xb6\x1f\xe5\xef\x92?[p\x99\xf1\x1f",
-            "AES encryption produced unexpected result")
+            "AES encryption produced unexpected result",
+        )
 
         # ensure long text is also rightly treated (iv changes)
         cipher_text = aes.encrypt("Hello World !" * 100000)
@@ -25,7 +26,8 @@ class TestKeePassHTTP(TestCase):
         self.assertEqual(
             digest_cipher_text,
             "ba0033d46d20113c2aed3f9eb059f9c885414cdc",
-            "AES encryption produced unexpected result")
+            "AES encryption produced unexpected result",
+        )
 
     def test_decrypt(self):
         aes = AES_256_CBC(self.KEY, self.IV)
@@ -33,7 +35,8 @@ class TestKeePassHTTP(TestCase):
         self.assertEqual(
             cipher_text,
             b"\xc9#\xbf.\xc6\xe5\xaf\x868'N\xba\xfe\xa5\x91l",
-            "AES decryption produced unexpected result")
+            "AES decryption produced unexpected result",
+        )
 
         # ensure long text is also rightly treated (iv changes)
         cipher_text = aes.decrypt(b"Hello World !!!!" * 100000)
@@ -41,4 +44,5 @@ class TestKeePassHTTP(TestCase):
         self.assertEqual(
             digest_cipher_text,
             "6335686444663cbeffbd9543db7b1ebc17bbe4ac",
-            "AES decryption produced unexpected result")
+            "AES decryption produced unexpected result",
+        )

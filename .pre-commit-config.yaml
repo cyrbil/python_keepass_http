@@ -1,0 +1,63 @@
+---
+repos:
+  # Apply a selection of the pre-commit built-in validators
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v2.2.3
+    hooks:
+      # Prevent giant files from being committed
+      - id: check-added-large-files
+      # Forbid files which have a UTF-8 byte-order marker
+      - id: check-byte-order-marker
+      # Checks that non-binary executables have a proper shebang
+      - id: check-executables-have-shebangs
+      # Attempts to load all json files to verify syntax
+      - id: check-json
+      # Check for files that contain merge conflict strings
+      - id: check-merge-conflict
+      # Attempts to load all yaml files to verify syntax
+      - id: check-yaml
+        args:
+          - --allow-multiple-documents
+      # Check for debugger imports and py37+ breakpoint() calls in python source
+      - id: debug-statements
+      # Checks for the existence of private keys
+      - id: detect-private-key
+      # Makes sure files end in a newline and only a newline
+      - id: end-of-file-fixer
+        exclude: ^setup\.cfg$
+      # Add `# -*- coding: utf-8 -*-` to the top of python files
+      - id: fix-encoding-pragma
+      # Replaces or checks mixed line ending
+      - id: mixed-line-ending
+        args:
+          - --fix=auto
+      # Checks that all your JSON files are pretty
+      - id: pretty-format-json
+      # Trims trailing whitespace
+      - id: trailing-whitespace
+        exclude: ^setup\.cfg$
+
+  - repo: https://github.com/asottile/add-trailing-comma
+    rev: v1.3.0
+    hooks:
+      # Automatically add trailing commas to calls and literals.
+      - id: add-trailing-comma
+
+  - repo: https://gitlab.com/PyCQA/flake8
+    rev: 3.7.7
+    hooks:
+      # Utility for enforcing style consistency across Python projects
+      - id: flake8
+
+  - repo: https://github.com/PyCQA/pydocstyle
+    rev: 6de6d93
+    hooks:
+      # Static analysis tool for checking compliance with Python docstring conventions
+      - id: pydocstyle
+
+  - repo: meta
+    hooks:
+      # Ensure each hook is used
+      # - id: check-hooks-apply
+      # Make sure there are no unnecessary excludes in the above checks
+      - id: check-useless-excludes

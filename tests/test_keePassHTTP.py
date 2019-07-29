@@ -57,7 +57,7 @@ class TestKeePassHTTP(TestCase):
         for search in ("search_url", "search_name"):
             entries = self.kph.search(search)
             self.assertEqual(
-                len(entries), 2, "Unexpected number of result during search"
+                len(entries), 2, "Unexpected number of result during search",
             )
             for entry in entries:
                 self.validate_entry(entry)
@@ -67,10 +67,9 @@ class TestKeePassHTTP(TestCase):
 
     def test_update(self):
         entry = self.kph.update(
-            "test", "test", "test", "1C23268FFA3AA847972641922BA3F611"
+            "test", "test", "test", "1C23268FFA3AA847972641922BA3F611",
         )
         self.validate_entry(entry)
-
 
         entry.url = entry.login
         entry.login = entry.password

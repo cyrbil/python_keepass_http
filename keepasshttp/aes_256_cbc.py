@@ -46,7 +46,7 @@ class AES_256_CBC(object):
 
     def cipher(self):
         return AES.new(
-            key=self.key, iv=self.iv, mode=AES.MODE_CBC
+            key=self.key, iv=self.iv, mode=AES.MODE_CBC,
         )
 
     def encrypt(self, text):

@@ -3,7 +3,7 @@
 [![pypi_version.svg][pypi_version.svg]][pypi_project.url]
 [![pypi_status.svg][pypi_status.svg]][pypi_project.url]
 [![pypi_format.svg][pypi_format.svg]][pypi_project.url]
-[![python_versions.svg][python_versions.svg]][pypi_project.url]  
+[![python_versions.svg][python_versions.svg]][pypi_project.url]
 [![license.svg][license.svg]][license.url]
 [![Maintainability][maintainability.svg]][maintainability.url]
 [![travis_build.svg][travis_build.svg]][travis.url]
@@ -24,21 +24,21 @@ Python client for [KeePassHTTP][keepasshttp.url] to interact with [KeePass][keep
 ## Usage
 
     import keepasshttp
-    
+
     # get single credential
     credential = keepasshttp.get("my_credential_name_or_url")
     print(credential.login)
     print(credential.password)
-    
+
     # find all credentials's name
     credentials = keepasshttp.list()
-    
+
     # fetch all partiall matching credentials
     credentials = keepasshttp.search("my_credential_name_or_url")
-    
+
     # create a new keepasshttp entry
     keepasshttp.create("login", "password", "url")
-    
+
     # update a keepasshttp entry
     credential.password = "new password"
     # or
@@ -56,10 +56,10 @@ KeePassHTTP can also be called from command line:
                    credential [credential ...]
 
     Fetch credentials from keepass
-    
+
     positional arguments:
       credential            Url or name to match credentials from keepass database
-    
+
     optional arguments:
       -h, --help            show this help message and exit
       -c CONFIG_PATH, --config CONFIG_PATH
@@ -69,7 +69,7 @@ KeePassHTTP can also be called from command line:
                             'http://localhost:19455/')
       -f {python,text,table,json,csv}, --format {python,text,table,json,csv}
                             output format for credentials
-    
+
     $ python -m keepathhttp my_credential_name_or_url
     my_credential_name_or_url
       - login: login
@@ -79,7 +79,7 @@ KeePassHTTP can also be called from command line:
       - id: ABCDEF1234567890ABCDEF1234567890
       - fields: []
 
-    
+
 ## Configuration
 
 By default, this module will write AES association key to `~/.python_keepass_http`
@@ -89,7 +89,7 @@ To change theses parameters, instantiate `keepasshttp.KeePassHTTP` class with di
 
     from keepasshttp import KeePassHTTP
     kph = KeePassHTTP(
-        storage="./keepasshttp_key", 
+        storage="./keepasshttp_key",
         url="https://example.com:1337/")
     kph.get("...")
     ...
@@ -102,7 +102,7 @@ You can simply run the tests using:
     python -m unittest discover
 
 `KeePassHTTP` calls are mocked, to run the tests against a real server, you need to:
- 
+
    - open `tests/test_database.kdbx` in `KeePass` password is `test`
    - set `TEST_WITH_KEEPASS` environment variable
    - run test normally

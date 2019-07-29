@@ -7,7 +7,7 @@ import argparse
 
 try:
     from collections import OrderedDict
-except ImportError: # pragma: no cover 
+except ImportError:  # pragma: no cover
     # noinspection PyUnresolvedReferences,PyPackageRequirements
     from ordereddict import OrderedDict
 
@@ -38,10 +38,14 @@ def text_fmt(entries):
     for k, credential in python_fmt(entries).items():
         lines.append(k)
         if credential:
-            list(map(lines.append,
-                ("  - {0}: {1}".format(field, value)
-                for field, value in credential.items())
-            ))
+            list(
+                map(
+                    lines.append, (
+                        "  - {0}: {1}".format(field, value)
+                        for field, value in credential.items()
+                    ),
+                ),
+            )
     return '\n'.join(lines)
 
 
@@ -78,9 +82,9 @@ def table_fmt(entries):
             line_fields = [k] + ([""]*6)
         max_fields_len = list(map(max, zip(max_fields_len, map(len, line_fields))))
         lines_fields.append(line_fields)
-    
+
     return table_fmt_justify(lines_fields, max_fields_len)
-    
+
 
 def table_fmt_justify(lines_fields, max_fields_len):
     lines = []
@@ -92,25 +96,32 @@ def table_fmt_justify(lines_fields, max_fields_len):
     return '\n'.join(lines)
 
 
-
 formatters = {
     "text": text_fmt,
     "table": table_fmt,
     "json": json_fmt,
-    "csv": csv_fmt
+    "csv": csv_fmt,
 }
 
 
 def cmd_line(args=None, kph=None):
     parser = argparse.ArgumentParser(prog="keepasshttp", description='Fetch credentials from keepass')
-    parser.add_argument('-c', '--config', dest='config_path',
-                        help="alternative path for keepasshttp's AES exchange key (default: ~/.python_keepass_http)")
-    parser.add_argument('-u', '--url', default="http://localhost:19455/",
-                        help="alternative url for keepasshttp server (default: 'http://localhost:19455/')")
-    parser.add_argument('-f', '--format', choices=formatters.keys(), default="text",
-                        help="output format for credentials")
-    parser.add_argument('credentials', metavar='credential', nargs='+',
-                        help='Url or name to match credentials from keepass database')
+    parser.add_argument(
+        '-c', '--config', dest='config_path',
+        help="alternative path for keepasshttp's AES exchange key (default: ~/.python_keepass_http)",
+    )
+    parser.add_argument(
+        '-u', '--url', default="http://localhost:19455/",
+        help="alternative url for keepasshttp server (default: 'http://localhost:19455/')",
+    )
+    parser.add_argument(
+        '-f', '--format', choices=formatters.keys(), default="text",
+        help="output format for credentials",
+    )
+    parser.add_argument(
+        'credentials', metavar='credential', nargs='+',
+        help='Url or name to match credentials from keepass database',
+    )
     args = parser.parse_args(args)
 
     # kph is only set for unittest
@@ -120,7 +131,7 @@ def cmd_line(args=None, kph=None):
     credentials = OrderedDict()
     for credential in args.credentials:
         credentials[credential] = kph.get(credential)
-        
+
     return str(formatters[args.format](credentials))
 
 
