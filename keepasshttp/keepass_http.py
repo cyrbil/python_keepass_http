@@ -6,9 +6,9 @@ import base64
 
 import requests
 
-from six import with_metaclass
 # noinspection PyCompatibility
 from requests.compat import str, bytes
+from six import with_metaclass
 
 from .aes_256_cbc import AES_256_CBC
 
@@ -72,9 +72,53 @@ class KeePassHTTPCredential(object):
             url=self._url,
         )
 
+    def __repr__(self):  # pragma: no cover
+        text = "<{0:s}[{1:s},{2:s}] at {3:s}>".format(
+            self.__class__.__name__,
+            self.name,
+            self.uuid,
+            hex(self.__hash__())
+        )
+        return text
+
 
 class KeePassHTTPException(Exception):
     pass
+
+
+class KeePassHTTPInvalidSignature(KeePassHTTPException):  # pragma: no cover
+    def __init__(self):
+        super(KeePassHTTPInvalidSignature, self).__init__("KeePassHTTP invalid signature")
+
+
+class KeePassHTTPApplicationIdMismatch(KeePassHTTPException):  # pragma: no cover
+    def __init__(self):
+        super(KeePassHTTPApplicationIdMismatch, self).__init__("KeePassHTTP application id mismatch")
+
+
+class KeePassHTTPDatabaseIdMismatch(KeePassHTTPException):  # pragma: no cover
+    def __init__(self):
+        super(KeePassHTTPDatabaseIdMismatch, self).__init__("KeePassHTTP database id mismatch")
+
+
+class KeePassHTTPBadResponse(KeePassHTTPException):  # pragma: no cover
+    def __init__(self, response):
+        """
+
+        :param response: :class:`Response <Response>` object
+        :type response: requests.Response
+        """
+        self.response = response
+        super(KeePassHTTPException, self).__init__("KeePassHTTP server return an error")
+
+    def __str__(self):
+        text = "{0:s}\nStatus: {1:d} - Body: {2:s}".format(
+            super(KeePassHTTPException, self).__str__(),
+            self.response.status_code,
+            self.response.content.__repr__()
+        )
+        print(text)
+        return text
 
 
 class KeePassHTTP(with_metaclass(KeePassHTTPSingleton, object)):
@@ -87,7 +131,7 @@ class KeePassHTTP(with_metaclass(KeePassHTTPSingleton, object)):
 
         :param storage: file path to store private association key
                         (default to "~/.python_keepass_http")
-        :type storage: str
+        :type storage: Text
         """
         self.url = url
         self.uid = None
@@ -104,7 +148,7 @@ class KeePassHTTP(with_metaclass(KeePassHTTPSingleton, object)):
         to the ``key`` is calculated. Only the entries with the minimal distance are returned
 
         :param key: partial key to look for, it will match url or title fields in KeePass
-        :type key: str
+        :type key: Text
         :param sort_keys: sort results
         :type sort_keys: bool
         :return: Credentials list
@@ -123,7 +167,7 @@ class KeePassHTTP(with_metaclass(KeePassHTTPSingleton, object)):
         to the ``key`` is calculated. Only the entry with the minimal distance are returned
 
         :param key: partial key to look for, it will match url or title fields in KeePass
-        :type key: str
+        :type key: Text
         :return: Credential
         :rtype: KeePassHTTPCredential
         """
@@ -199,12 +243,12 @@ class KeePassHTTP(with_metaclass(KeePassHTTPSingleton, object)):
 
         response = requests.post(url=self.url, json=request_data)
 
-        if response.status_code != 200:
-            raise KeePassHTTPException("KeePassHTTP returned an error")  # pragma: no cover
+        if response.status_code is not 200:
+            raise KeePassHTTPBadResponse(response)  # pragma: no cover
 
         response_data = response.json()
         if not response_data.get("Success", False):
-            raise KeePassHTTPException("KeePassHTTP returned an error")  # pragma: no cover
+            raise KeePassHTTPBadResponse(response)  # pragma: no cover
 
         response_data = self._decrypt_response(response_data)
         return response_data
@@ -218,16 +262,11 @@ class KeePassHTTP(with_metaclass(KeePassHTTPSingleton, object)):
         verifier = aes.decrypt(signature).decode("ascii")
 
         if nonce != verifier:
-            raise KeePassHTTPException("KeePassHTTP invalid signature")  # pragma: no cover
-        field_checks = {
-            "Id": self.uid,
-            "Hash": self.db_hash,
-        }
-        for key, value in field_checks.items():
-            if value and value != response_data.get(key):
-                raise KeePassHTTPException(  # pragma: no cover
-                        "KeePassHTTP sent a {0:s} that does not match local one".format(key),
-                )
+            raise KeePassHTTPInvalidSignature()  # pragma: no cover
+        if self.uid and self.uid != response_data.get("Id"):
+            raise KeePassHTTPApplicationIdMismatch()  # pragma: no cover
+        if self.db_hash and self.db_hash != response_data.get("Hash"):
+            raise KeePassHTTPDatabaseIdMismatch()  # pragma: no cover
 
         response_data = self._decrypt(aes, response_data)
         return response_data
@@ -267,8 +306,18 @@ class KeePassHTTP(with_metaclass(KeePassHTTPSingleton, object)):
             return list(map(lambda item: self._decrypt(aes, item), data))
         return data
 
-    def _decrypt_str(self, aes, data):
+    @staticmethod
+    def _decrypt_str(aes, data):
         try:
             return aes.decrypt(base64.b64decode(data)).decode("utf-8")
         except (TypeError, ValueError):
             return data
+
+    def __repr__(self):  # pragma: no cover
+        text = "<{0:s}[{1:s},{2:s}] at {3:s}>".format(
+            self.__class__.__name__,
+            self.storage,
+            self.url,
+            hex(self.__hash__())
+        )
+        return text

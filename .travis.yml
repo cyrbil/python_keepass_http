@@ -2,13 +2,21 @@ language: python
 matrix:
   include:
     - python: "2.6"
+      dist: trusty
+      sudo: true
     - python: "2.7"
+      dist: trusty
+      sudo: true
     # build randomly fail on trusty
     - python: "3.4"
       dist: xenial
       sudo: true
     - python: "3.5"
+      dist: xenial
+      sudo: true
     - python: "3.6"
+      dist: xenial
+      sudo: true
     # https://github.com/travis-ci/travis-ci/issues/9815
     - python: "3.7"
       dist: xenial
