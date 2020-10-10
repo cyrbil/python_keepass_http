@@ -5,21 +5,25 @@ matrix:
       dist: trusty
       sudo: true
     - python: "2.7"
-      dist: trusty
+      dist: bionic
       sudo: true
-    # build randomly fail on trusty
     - python: "3.4"
-      dist: xenial
+      dist: xenial 
       sudo: true
     - python: "3.5"
-      dist: xenial
+      dist: bionic
       sudo: true
     - python: "3.6"
-      dist: xenial
+      dist: bionic
       sudo: true
-    # https://github.com/travis-ci/travis-ci/issues/9815
     - python: "3.7"
-      dist: xenial
+      dist: bionic 
+      sudo: true
+    - python: "3.8"
+      dist: bionic 
+      sudo: true
+    - python: "3.9-dev"
+      dist: bionic
       sudo: true
 
 cache: pip
