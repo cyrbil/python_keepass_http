@@ -281,7 +281,7 @@ class KeePassHTTP(with_metaclass(KeePassHTTPSingleton, object)):
         elif not isinstance(data, str) and hasattr(data, "__iter__"):
             return list(map(lambda item: self._encrypt(aes, item), data))  # pragma: no cover
 
-        return str(data).lower()
+        return str(data)
 
     def _encrypt_dict(self, aes, data):
         for key, value in list(data.items()):
