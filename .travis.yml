@@ -30,13 +30,25 @@ cache: pip
 before_install:
   - sudo apt-get install -y libssl-dev libffi-dev
 install:
-  - pip install -r requirements.txt pytest-cov pre-commit
+  - pip install -r requirements.txt pytest-cov
+before_script:
+  - if [[ "$TRAVIS_PYTHON_VERSION" == "3.7" ]]; then pip install pre-commit; fi
+  - >
+    if [[ "$TRAVIS_PYTHON_VERSION" == "3.7" ]]; then
+      curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+      chmod +x ./cc-test-reporter
+      ./cc-test-reporter before-build
+    fi
 script:
-  - pytest --cov
-  - pre-commit --all-files
-after_success:
-  - pip install codecov pyopenssl
-  - codecov
+  - if [[ "$TRAVIS_PYTHON_VERSION" == "3.7" ]]; then pre-commit run --all-files; fi
+  - pytest --cov --cov-report term-missing --cov-report xml
+after_script:
+  - >
+    if [[ "$TRAVIS_PYTHON_VERSION" == "3.7" ]]; then
+      ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
+      pip install codecov pyopenssl
+      codecov
+    fi
 
 deploy:
   provider: pypi

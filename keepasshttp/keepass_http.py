@@ -11,6 +11,14 @@ from requests.compat import str, bytes
 from six import with_metaclass
 
 from .aes_256_cbc import AES_256_CBC
+from .keepass_http_credential import KeePassHTTPCredential
+from .keepass_http_exceptions import (
+    KeePassHTTPAssociationFailure,
+    KeePassHTTPDatabaseIdMismatch,
+    KeePassHTTPApplicationIdMismatch,
+    KeePassHTTPInvalidSignature,
+    KeePassHTTPBadResponse,
+)
 
 
 class KeePassHTTPSingleton(type):
@@ -24,101 +32,6 @@ class KeePassHTTPSingleton(type):
                 storage, *args, **kwargs
             )
         return instance
-
-
-class KeePassHTTPCredential(object):
-    def __init__(self, kph, entry):
-        self.kph = kph
-        self.name = entry.get("Name")
-        self.uuid = entry.get("Uuid")
-        self._login = entry.get("Login")
-        self._password = entry.get("Password")
-        self.string_fields = entry.get("StringFields") or []
-        # never received, put can be updated
-        self._url = None
-
-    @property
-    def login(self):
-        return self._login
-
-    @property
-    def password(self):
-        return self._password
-
-    @property
-    def url(self):
-        return self._url
-
-    @login.setter
-    def login(self, value):
-        self._login = value
-        self.update()
-
-    @password.setter
-    def password(self, value):
-        self._password = value
-        self.update()
-
-    @url.setter
-    def url(self, value):
-        self._url = value
-        self.update()
-
-    def update(self):
-        self.kph.update(
-            uid=self.uuid,
-            login=self._login,
-            password=self._password,
-            url=self._url,
-        )
-
-    def __repr__(self):  # pragma: no cover
-        text = "<{0:s}[{1:s},{2:s}] at {3:s}>".format(
-            self.__class__.__name__,
-            self.name,
-            self.uuid,
-            hex(self.__hash__()),
-        )
-        return text
-
-
-class KeePassHTTPException(Exception):
-    pass
-
-
-class KeePassHTTPInvalidSignature(KeePassHTTPException):  # pragma: no cover
-    def __init__(self):
-        super(KeePassHTTPInvalidSignature, self).__init__("KeePassHTTP invalid signature")
-
-
-class KeePassHTTPApplicationIdMismatch(KeePassHTTPException):  # pragma: no cover
-    def __init__(self):
-        super(KeePassHTTPApplicationIdMismatch, self).__init__("KeePassHTTP application id mismatch")
-
-
-class KeePassHTTPDatabaseIdMismatch(KeePassHTTPException):  # pragma: no cover
-    def __init__(self):
-        super(KeePassHTTPDatabaseIdMismatch, self).__init__("KeePassHTTP database id mismatch")
-
-
-class KeePassHTTPBadResponse(KeePassHTTPException):  # pragma: no cover
-    def __init__(self, response):
-        """`KeePassHTTPBadResponse` exception.
-
-        :param response: :class:`Response <Response>` object
-        :type response: requests.Response
-        """
-        self.response = response
-        super(KeePassHTTPException, self).__init__("KeePassHTTP server return an error")
-
-    def __str__(self):
-        text = "{0:s}\nStatus: {1:d} - Body: {2:s}".format(
-            super(KeePassHTTPException, self).__str__(),
-            self.response.status_code,
-            self.response.content.__repr__(),
-        )
-        print(text)
-        return text
 
 
 class KeePassHTTP(with_metaclass(KeePassHTTPSingleton, object)):
@@ -215,14 +128,10 @@ class KeePassHTTP(with_metaclass(KeePassHTTPSingleton, object)):
         data = self._request("associate", Key=base64.b64encode(self.key))
         uid = data.get("Id")
         if not uid:
-            raise KeePassHTTPException(  # pragma: no cover
-                "Fail to associate with KeePassHTTP, no app id returned",
-            )
+            raise KeePassHTTPAssociationFailure("app_id")  # pragma: no cover
         db_hash = data.get("Hash")
         if not db_hash:
-            raise KeePassHTTPException(  # pragma: no cover
-                "Fail to associate with KeePassHTTP, no db_hash returned",
-            )
+            raise KeePassHTTPAssociationFailure("db_hash")  # pragma: no cover
         return uid, db_hash
 
     def _authenticate(self):
