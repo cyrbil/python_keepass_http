@@ -45,11 +45,11 @@ setuptools.setup(
     long_description=get_content("README.md"),
     long_description_content_type="text/markdown",
     install_requires=[
-        requirement.split(maxsplit=1)[0] 
+        requirement.split(maxsplit=1)[0]
         for requirement in get_content("requirements.txt").split('\n')
         if requirement
     ],
-    setup_requires=["pytest-runner"],
+    setup_requires=["pytest-runner", "pre-commit"],
     tests_require=["pytest-cov"],
     include_package_data=True,
     classifiers=[

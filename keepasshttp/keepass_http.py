@@ -77,7 +77,7 @@ class KeePassHTTPCredential(object):
             self.__class__.__name__,
             self.name,
             self.uuid,
-            hex(self.__hash__())
+            hex(self.__hash__()),
         )
         return text
 
@@ -103,7 +103,7 @@ class KeePassHTTPDatabaseIdMismatch(KeePassHTTPException):  # pragma: no cover
 
 class KeePassHTTPBadResponse(KeePassHTTPException):  # pragma: no cover
     def __init__(self, response):
-        """
+        """`KeePassHTTPBadResponse` exception.
 
         :param response: :class:`Response <Response>` object
         :type response: requests.Response
@@ -115,7 +115,7 @@ class KeePassHTTPBadResponse(KeePassHTTPException):  # pragma: no cover
         text = "{0:s}\nStatus: {1:d} - Body: {2:s}".format(
             super(KeePassHTTPException, self).__str__(),
             self.response.status_code,
-            self.response.content.__repr__()
+            self.response.content.__repr__(),
         )
         print(text)
         return text
@@ -243,7 +243,7 @@ class KeePassHTTP(with_metaclass(KeePassHTTPSingleton, object)):
 
         response = requests.post(url=self.url, json=request_data)
 
-        if response.status_code is not 200:
+        if response.status_code != 200:
             raise KeePassHTTPBadResponse(response)  # pragma: no cover
 
         response_data = response.json()
@@ -318,6 +318,6 @@ class KeePassHTTP(with_metaclass(KeePassHTTPSingleton, object)):
             self.__class__.__name__,
             self.storage,
             self.url,
-            hex(self.__hash__())
+            hex(self.__hash__()),
         )
         return text

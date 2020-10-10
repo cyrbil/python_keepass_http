@@ -8,7 +8,7 @@ matrix:
       dist: bionic
       sudo: true
     - python: "3.4"
-      dist: xenial 
+      dist: xenial
       sudo: true
     - python: "3.5"
       dist: bionic
@@ -17,10 +17,10 @@ matrix:
       dist: bionic
       sudo: true
     - python: "3.7"
-      dist: bionic 
+      dist: bionic
       sudo: true
     - python: "3.8"
-      dist: bionic 
+      dist: bionic
       sudo: true
     - python: "3.9-dev"
       dist: bionic
@@ -30,9 +30,10 @@ cache: pip
 before_install:
   - sudo apt-get install -y libssl-dev libffi-dev
 install:
-  - pip install -r requirements.txt pytest-cov
+  - pip install -r requirements.txt pytest-cov pre-commit
 script:
   - pytest --cov
+  - pre-commit --all-files
 after_success:
   - pip install codecov pyopenssl
   - codecov
